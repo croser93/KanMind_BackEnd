@@ -29,6 +29,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         all_email = User.objects.values_list('email', flat=True)
         full_name = self.validated_data['username']
         name_parts = full_name.split()
+        first_name = name_parts[0]
+        last_name=' '.join(name_parts[1:])
 
         if pw != repeated_password:
             raise serializers.ValidationError({'error': 'password dont match'})
@@ -36,7 +38,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if email in all_email:
             raise serializers.ValidationError({'error': 'email is used'})
         
-        account = User(email = self.validated_data['email'], username=self.validated_data['username'], first_name=name_parts[0], last_name=' '.join(name_parts[1:]) )
+        account = User(email = self.validated_data['email'], username = first_name + "-" + last_name, first_name=first_name, last_name=last_name)
         account.set_password(pw)
         account.save()
         return account
