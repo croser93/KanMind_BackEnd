@@ -20,7 +20,7 @@ class RegistrationView(APIView):
                 'email'     :   saved_account.email
             }
         else:
-            data = serializer.errors
+             return Response(serializer.errors, status=400)
 
         return Response(data)
 
