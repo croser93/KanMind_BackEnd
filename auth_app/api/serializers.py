@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator 
+from django.contrib.auth import authenticate
 
 class RegistrationSerializer(serializers.ModelSerializer):
 
@@ -42,3 +43,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.set_password(pw)
         account.save()
         return account
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user_mail = User.objects.filter(email=data['email']).first()
+        if user_mail and user_mail.check_password(data['password']):
+            return {'user': user_mail}
+        raise serializers.ValidationError({'error': 'Wrong credentials'})
