@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from .permissions import IsRieviewerOrAssigneeOrAdmin
 from .serializer import TaskSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -26,7 +27,7 @@ class TaskListView(APIView):
 
 class TaskDetailView(APIView):
         
-        permission_classes = [IsAuthenticated]
+        permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
         def get(self, request, pk):
             tasks = CreateTask.objects.get(pk=pk)
@@ -42,9 +43,9 @@ class TaskDetailView(APIView):
             return Response(serializer.errors, status=400)
         
         def delete(self, request, pk):
-            tasks = CreateTask.objects.get(pk=pk)
-            tasks.delete()
-            return Response({"message" : "successfully deleted",}, status=204)
+                tasks = CreateTask.objects.get(pk=pk)
+                tasks.delete()
+                return Response({"message" : "successfully deleted",}, status=204)
 
 
 
