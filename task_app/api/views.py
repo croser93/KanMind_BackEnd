@@ -9,24 +9,24 @@ from task_app.models import CreateTask
 
 class TaskListView(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(reviewer_id=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
     def get(self, request):
         tasks = CreateTask.objects.all()
         serializer = TaskSerializer(tasks, many=True)
-        return Response({"message" : "efolgreich abgerufen", 'data':serializer.data}, status=200)
+        return Response({"message" : "successfully retrieved", 'data':serializer.data}, status=200)
     
 
 class TaskDetailView(APIView):
         
-        permission_classes = [AllowAny]
+        permission_classes = [IsAuthenticated]
 
         def get(self, request, pk):
             tasks = CreateTask.objects.get(pk=pk)
@@ -44,7 +44,7 @@ class TaskDetailView(APIView):
         def delete(self, request, pk):
             tasks = CreateTask.objects.get(pk=pk)
             tasks.delete()
-            return Response({"message" : "efolgreich gelöscht",}, status=200)
+            return Response({"message" : "successfully deleted",}, status=204)
 
 
 
