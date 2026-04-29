@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializer import CreateTaskSerializer
+from .serializer import TaskSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -12,7 +12,7 @@ class TaskListView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = CreateTaskSerializer(data=request.data)
+        serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=201)
@@ -20,10 +20,31 @@ class TaskListView(APIView):
     
     def get(self, request):
         tasks = CreateTask.objects.all()
-        serializer = CreateTaskSerializer(tasks, many=True)
+        serializer = TaskSerializer(tasks, many=True)
         return Response({"message" : "efolgreich abgerufen", 'data':serializer.data}, status=200)
     
 
-class TaskDetailView():
-    pass
+class TaskDetailView(APIView):
+        
+        permission_classes = [AllowAny]
+
+        def get(self, request, pk):
+            tasks = CreateTask.objects.get(pk=pk)
+            serializer = TaskSerializer(tasks)
+            return Response(serializer.data)
+        
+        def patch(self, request, pk):
+            tasks = CreateTask.objects.get(pk=pk)
+            serializer = TaskSerializer(tasks, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
+        
+        def delete(self, request, pk):
+            tasks = CreateTask.objects.get(pk=pk)
+            tasks.delete()
+            return Response({"message" : "efolgreich gelöscht",}, status=200)
+
+
 

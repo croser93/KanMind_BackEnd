@@ -8,7 +8,7 @@ class Board(models.Model):
 class CreateTask(models.Model):
 
     STATUS_CHOICES = [
-        ('to-do', 'To DO'),
+        ('to-do', 'To Do'),
         ('in-progress', 'In Progress'),
         ('review', 'Review'),
         ('done', ' Done')
