@@ -50,7 +50,7 @@ class CommentView(APIView):
      
      permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
-     def get(self, request):
-            comment = Comments.objects.all(comment, many=True)
-            serializer = CommentsSerializer(comment)
+     def get(self, request, pk):
+            comment = Comments.objects.filter(task=pk)
+            serializer = CommentsSerializer(comment, many=True)
             return Response(serializer.data)
