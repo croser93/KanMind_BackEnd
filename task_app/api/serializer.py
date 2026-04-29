@@ -1,6 +1,6 @@
 from django.tasks import task
 from rest_framework import serializers
-from task_app.models import CreateTask
+from task_app.models import CreateTask, Comments
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,3 +22,13 @@ class TaskSerializer (serializers.ModelSerializer):
         task = CreateTask.objects.create(**validated_data)
         task.assignee_id.set(assignees)
         return task
+    
+class CommentsSerializer(serializers.ModelSerializer):
+     
+    author = serializers.SerializerMethodField()
+    class Meta:
+          model = Comments
+          fields =['id' , 'author', 'created_at', 'content']
+
+    def get_author(self, obj):
+         return obj.author.get_full_name() or "###"

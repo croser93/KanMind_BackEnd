@@ -1,12 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .permissions import IsRieviewerOrAssigneeOrAdmin
-from .serializer import TaskSerializer
+from .serializer import TaskSerializer, CommentsSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
-from task_app.models import CreateTask
+from task_app.models import CreateTask, Comments
 
 class TaskListView(APIView):
 
@@ -24,7 +24,6 @@ class TaskListView(APIView):
         serializer = TaskSerializer(tasks, many=True)
         return Response({"message" : "successfully retrieved", 'data':serializer.data}, status=200)
     
-
 class TaskDetailView(APIView):
         
         permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
@@ -47,5 +46,11 @@ class TaskDetailView(APIView):
                 tasks.delete()
                 return Response({"message" : "successfully deleted",}, status=204)
 
+class CommentView(APIView):
+     
+     permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
-
+     def get(self, request):
+            comment = Comments.objects.all(comment, many=True)
+            serializer = CommentsSerializer(comment)
+            return Response(serializer.data)
