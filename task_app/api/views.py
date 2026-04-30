@@ -48,9 +48,31 @@ class TaskDetailView(APIView):
 
 class CommentView(APIView):
      
-     permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
-     def get(self, request, pk):
+    def get(self, request, pk):
             comment = Comments.objects.filter(task=pk)
             serializer = CommentsSerializer(comment, many=True)
             return Response(serializer.data)
+    
+    def post(self, request, pk):
+            serializer = CommentsSerializer(data=request.data)
+
+            if serializer.is_valid():
+                serializer.save(task_id=pk, author=request.user)
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
+     
+class CommentDetailView(APIView):
+     
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+
+    def get(self, request, task_pk, comment_pk):
+        comment = Comments.objects.get(task=task_pk, pk=comment_pk)
+        serializer = CommentsSerializer(comment)
+        return Response(serializer.data)
+    
+    def delete(self, request, task_pk, comment_pk):
+        comment = Comments.objects.get(task=task_pk, pk=comment_pk)  
+        comment.delete()
+        return Response({"message" : "successfully deleted",}, status=204)
