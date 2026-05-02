@@ -20,7 +20,7 @@ class CreateTask(models.Model):
         ('high', 'High'),
     ]
 
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
