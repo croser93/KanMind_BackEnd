@@ -11,3 +11,9 @@ class BoardListView(APIView):
         if serializer.is_valid:
             return Response(serializer.data, status=200)
         return Response(serializer.errors, status=400)
+    
+class BoardDetailView(APIView):
+    def get (self, request, pk):
+        board = Board.objects.get(pk = pk)
+        serializer = BoardSerializer(board)
+        return Response(serializer.data)
