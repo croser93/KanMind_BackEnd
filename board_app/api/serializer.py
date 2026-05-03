@@ -27,7 +27,7 @@ class BoardSerializer(serializers.ModelSerializer):
     def get_tasks_high_prio_count(self, obj):
         return obj.tasks.filter(priority='high').count()
     
-class MemberSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     fullname = serializers.SerializerMethodField()
     class Meta:
         model = User
@@ -37,11 +37,12 @@ class MemberSerializer(serializers.ModelSerializer):
         return obj.get_full_name() or '####'
     
 class BoardDetailSerializer(BoardSerializer):
-    members = MemberSerializer(many=True, read_only=True)
+    members = UserSerializer(many=True, read_only=True)
     tasks = TaskSerializer(many=True, read_only=True)
 
     class Meta(BoardSerializer.Meta):
         fields = BoardSerializer.Meta.fields + ['members', 'tasks']
+
 
 
   
