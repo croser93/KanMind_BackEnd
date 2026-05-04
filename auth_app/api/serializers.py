@@ -39,7 +39,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if email in all_email:
             raise serializers.ValidationError({'error': 'email is used'})
         
-        account = User(email = self.validated_data['email'], username = first_name + "-" + last_name, first_name=first_name, last_name=last_name)
+        account = User(email = self.validated_data['email'], username = first_name + " " + last_name, first_name=first_name, last_name=last_name)
         account.set_password(pw)
         account.save()
         return account

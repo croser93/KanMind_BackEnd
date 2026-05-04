@@ -1,10 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
-class Board(models.Model):
-    title = models.CharField(max_length=250)
-
 class CreateTask(models.Model):
 
     STATUS_CHOICES = [
@@ -20,7 +16,7 @@ class CreateTask(models.Model):
         ('high', 'High'),
     ]
 
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    board = models.ForeignKey('board_app.Board', on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
