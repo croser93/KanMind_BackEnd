@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from board_app.models import Board
 from django.contrib.auth.models import User
 from task_app.api.permissions import IsRieviewerOrAssigneeOrAdmin
+from rest_framework.permissions import IsAuthenticated
 
 class BoardListView(APIView):
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin]
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get(self, request):
         boards = Board.objects.all()
@@ -19,12 +20,12 @@ class BoardListView(APIView):
 
         serializer = BoardSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner_id=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
 class BoardDetailView(APIView):
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin]
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get (self, request, pk):
         board = Board.objects.get(pk = pk)
@@ -45,7 +46,7 @@ class BoardDetailView(APIView):
         return Response({"message" : "successfully deleted",}, status=204)
     
 class EmailView(APIView):
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin]
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get (self, request):
         email = request.query_params.get('email')

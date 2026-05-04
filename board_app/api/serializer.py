@@ -4,15 +4,26 @@ from django.contrib.auth.models import User
 from task_app.api.serializer import TaskSerializer
 
 
+class UserSerializer(serializers.ModelSerializer):
+    fullname = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'fullname']
+
+    def get_fullname(self, obj):
+        return obj.get_full_name() or '####'
+    
 class BoardSerializer(serializers.ModelSerializer):
 
     member_count= serializers.SerializerMethodField()
     ticket_count= serializers.SerializerMethodField()
     tasks_to_do_count= serializers.SerializerMethodField()
     tasks_high_prio_count= serializers.SerializerMethodField()
+    owner_id = UserSerializer(read_only=True)
+    members = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),many=True,required=False)    
     class Meta:
         model = Board
-        fields = ['id', 'title', 'owner_id', "member_count", "ticket_count", "tasks_to_do_count", "tasks_high_prio_count"]
+        fields = ['id', 'title', 'owner_id', "member_count", "ticket_count", "tasks_to_do_count", "tasks_high_prio_count", "members"]
 
 
     def get_member_count(self, obj):
@@ -27,14 +38,12 @@ class BoardSerializer(serializers.ModelSerializer):
     def get_tasks_high_prio_count(self, obj):
         return obj.tasks.filter(priority='high').count()
     
-class UserSerializer(serializers.ModelSerializer):
-    fullname = serializers.SerializerMethodField()
-    class Meta:
-        model = User
-        fields = ['id', 'email', 'fullname']
+    def create (self, validate_data):
+        members = validate_data.pop('members', [])
+        board = Board.objects.create(**validate_data) 
+        board.members.set(members)
+        return board 
 
-    def get_fullname(self, obj):
-        return obj.get_full_name() or '####'
     
 class BoardDetailSerializer(BoardSerializer):
     members = UserSerializer(many=True, read_only=True)

@@ -50,4 +50,4 @@ class LogoutView(APIView):
 
     def post(self, request):
         request.user.auth_token.delete()
-        return Response({'detail' :"Logout erfolgreich. Token wurde gelöscht."}, status=status.HTTP_200_OK)
+        return Response({'detail' :"Logout erfolgreich. Token wurde gelöscht."}, status=200)
