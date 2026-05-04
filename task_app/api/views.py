@@ -76,3 +76,20 @@ class CommentDetailView(APIView):
         comment = Comments.objects.get(task=task_pk, pk=comment_pk)  
         comment.delete()
         return Response({"message" : "successfully deleted",}, status=204)
+    
+
+class AssignToMeView(APIView):
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+
+    def get(self, request):
+        tasks = CreateTask.objects.filter(assignee_id=request.user)
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data, status=200)
+
+
+class ReviewingView(APIView):
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+    def get(self, request):
+        tasks = CreateTask.objects.filter(reviewer_id=request.user)
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data, status=200)
