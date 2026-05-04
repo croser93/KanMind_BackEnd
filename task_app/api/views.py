@@ -79,6 +79,8 @@ class CommentDetailView(APIView):
     
 
 class AssignToMeView(APIView):
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+
     def get(self, request):
         tasks = CreateTask.objects.filter(assignee_id=request.user)
         serializer = TaskSerializer(tasks, many=True)
@@ -86,6 +88,7 @@ class AssignToMeView(APIView):
 
 
 class ReviewingView(APIView):
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
     def get(self, request):
         tasks = CreateTask.objects.filter(reviewer_id=request.user)
         serializer = TaskSerializer(tasks, many=True)
