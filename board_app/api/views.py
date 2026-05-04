@@ -34,7 +34,7 @@ class BoardDetailView(APIView):
     
     def patch (self, request, pk):
         board = Board.objects.get(pk = pk)
-        serializer = BoardDetailSerializer(board, data=request.data, partial=True)
+        serializer = BoardSerializer(board, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=201)

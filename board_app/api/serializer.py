@@ -42,7 +42,14 @@ class BoardSerializer(serializers.ModelSerializer):
         members = validate_data.pop('members', [])
         board = Board.objects.create(**validate_data) 
         board.members.set(members)
-        return board 
+        return board
+    
+    def update(self, instance, validated_data):
+        members = validated_data.pop('members', None)
+        instance = super().update(instance, validated_data)
+        if members is not None:
+            instance.members.set(members)
+        return instance
 
     
 class BoardDetailSerializer(BoardSerializer):

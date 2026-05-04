@@ -9,20 +9,21 @@ class UserSerializer(serializers.ModelSerializer):
             fields =['id', 'username', 'email',]
 
 class TaskSerializer (serializers.ModelSerializer):
-
-    assignee_id = UserSerializer(many=True, required=False)
-    reviewer_id = UserSerializer(read_only=True)
-    assignee_ids_input = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, write_only=True, source='assignee_id')
     class Meta:
         model = CreateTask
-        fields = ['id', 'title', 'description', 'status', 'priority', 'due_date', 'board', 'reviewer_id', 'assignee_id', 'assignee_ids_input']
+        fields = ['id', 'title', 'description', 'status', 'priority', 'due_date', 'board', 'reviewer_id', 'assignee_id']
+        extra_kwargs = {
+            'assignee_id': {'required': False, 'allow_null': True},
+            'reviewer_id': {'required': False, 'allow_null': True},
+        }
 
-    def create(self, validated_data):
-        assignees = validated_data.pop('assignee_id', [])
-        task = CreateTask.objects.create(**validated_data)
-        task.assignee_id.set(assignees)
-        return task
-    
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['assignee_id'] = UserSerializer(instance.assignee_id).data if instance.assignee_id else None
+        data['reviewer_id'] = UserSerializer(instance.reviewer_id).data if instance.reviewer_id else None
+        return data
+
 class CommentsSerializer(serializers.ModelSerializer):
      
     author = serializers.SerializerMethodField()
