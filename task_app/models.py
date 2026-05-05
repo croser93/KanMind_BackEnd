@@ -26,7 +26,7 @@ class CreateTask(models.Model):
     due_date = models.DateField()
 
 class Comments(models.Model):
-    task = models.ForeignKey(CreateTask, on_delete=models.CASCADE)
+    task = models.ForeignKey(CreateTask, on_delete=models.CASCADE, related_name='comments')
     created_at= models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.CharField(max_length=500)

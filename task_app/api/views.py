@@ -1,5 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+
+from auth_app.api import serializers
 from .permissions import IsRieviewerOrAssigneeOrAdmin
 from .serializer import TaskSerializer, CommentsSerializer
 from rest_framework.authtoken.models import Token
@@ -7,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
 from task_app.models import CreateTask, Comments
+from rest_framework import serializers
+
 
 class TaskListView(APIView):
 
@@ -24,6 +28,7 @@ class TaskListView(APIView):
         serializer = TaskSerializer(tasks, many=True)
         return Response({"message" : "successfully retrieved", 'data':serializer.data}, status=200)
     
+
 class TaskDetailView(APIView):
         
         permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
@@ -79,8 +84,8 @@ class CommentDetailView(APIView):
     
 
 class AssignToMeView(APIView):
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
     def get(self, request):
         tasks = CreateTask.objects.filter(assignee_id=request.user)
         serializer = TaskSerializer(tasks, many=True)
@@ -88,6 +93,7 @@ class AssignToMeView(APIView):
 
 
 class ReviewingView(APIView):
+
     permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
     def get(self, request):
         tasks = CreateTask.objects.filter(reviewer_id=request.user)

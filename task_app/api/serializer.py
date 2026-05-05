@@ -12,9 +12,11 @@ class UserSerializer(serializers.ModelSerializer):
         def get_fullname(self, obj):
             return obj.get_full_name() or obj.username
 class TaskSerializer (serializers.ModelSerializer):
+
+    comments_count = serializers.SerializerMethodField()
     class Meta:
         model = CreateTask
-        fields = ['id', 'title', 'description', 'status', 'priority', 'due_date', 'board', 'reviewer_id', 'assignee_id']
+        fields = ['id', 'title', 'description', 'status', 'priority', 'due_date', 'board', 'reviewer_id', 'assignee_id', 'comments_count']
         extra_kwargs = {
             'assignee_id': {'required': False, 'allow_null': True},
             'reviewer_id': {'required': False, 'allow_null': True},
@@ -31,6 +33,9 @@ class TaskSerializer (serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
         return instance
+    
+    def get_comments_count(self, obj):
+        return obj.comments.count()
 
 class CommentsSerializer(serializers.ModelSerializer):
      
@@ -40,4 +45,4 @@ class CommentsSerializer(serializers.ModelSerializer):
           fields =['id' , 'author', 'created_at', 'content']
 
     def get_author(self, obj):
-         return obj.author.get_full_name() or "###"
+         return obj.author.get_full_name()

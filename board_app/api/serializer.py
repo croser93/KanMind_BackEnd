@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'fullname']
 
     def get_fullname(self, obj):
-        return obj.get_full_name() or '####'
+        return obj.get_full_name()
     
 class BoardSerializer(serializers.ModelSerializer):
 
@@ -42,11 +42,15 @@ class BoardSerializer(serializers.ModelSerializer):
     
 class BoardDetailSerializer(BoardSerializer):
     tasks = TaskSerializer(many=True, read_only=True)
+    comments_count = serializers.SerializerMethodField()
     class Meta(BoardSerializer.Meta):
-        fields = BoardSerializer.Meta.fields + ['tasks']
+        fields = BoardSerializer.Meta.fields + ['tasks', 'comments_count']
         extra_kwargs = {
             'members': {'required': False}
         }
+
+    def get_comments_count(self, obj):
+        return sum(task.comments.count() for task in obj.tasks.all())
 
     def create (self, validate_data):
         members = validate_data.pop('members', [])
