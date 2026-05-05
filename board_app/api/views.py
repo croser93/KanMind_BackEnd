@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from board_app.models import Board
 from django.contrib.auth.models import User
 from task_app.api.permissions import IsRieviewerOrAssigneeOrAdmin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated , AllowAny
 
 class BoardListView(APIView):
     permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
@@ -17,15 +17,17 @@ class BoardListView(APIView):
         return Response(serializer.errors, status=400)
     
     def post(self, request):
-
         serializer = BoardSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(owner_id=request.user)
+            board = serializer.save(owner_id=request.user)
+            members = request.data.get('members', [])
+            board.members.set(members)
+            board.members.add(request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
 class BoardDetailView(APIView):
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get (self, request, pk):
         board = Board.objects.get(pk = pk)
@@ -34,8 +36,11 @@ class BoardDetailView(APIView):
     
     def patch (self, request, pk):
         board = Board.objects.get(pk = pk)
-        serializer = BoardSerializer(board, data=request.data, partial=True)
+        serializer = BoardDetailSerializer(board, data=request.data, partial=True)
         if serializer.is_valid():
+            members = request.data.get('members', None)
+            if members is not None:
+                board.members.set(members)
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)

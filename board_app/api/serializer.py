@@ -22,6 +22,9 @@ class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
         fields = ['id', 'title', 'owner_id', 'member_count', 'ticket_count', 'tasks_to_do_count', 'tasks_high_prio_count']
+        extra_kwargs = {
+            'owner_id': {'required': False}
+        }
 
     def get_member_count(self, obj):
         return obj.members.count()
@@ -39,11 +42,11 @@ class BoardSerializer(serializers.ModelSerializer):
     
 class BoardDetailSerializer(BoardSerializer):
     tasks = TaskSerializer(many=True, read_only=True)
-    members = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),many=True,required=False)    
-
-
     class Meta(BoardSerializer.Meta):
-        fields = BoardSerializer.Meta.fields + ['members', 'tasks']
+        fields = BoardSerializer.Meta.fields + ['tasks']
+        extra_kwargs = {
+            'members': {'required': False}
+        }
 
     def create (self, validate_data):
         members = validate_data.pop('members', [])
@@ -57,6 +60,11 @@ class BoardDetailSerializer(BoardSerializer):
         if members is not None:
             instance.members.set(members)
         return instance
+    
+    def to_representation(self, instance):
+            data = super().to_representation(instance)
+            data['members'] = UserSerializer(instance.members.all(), many=True).data
+            return data
 
 
   

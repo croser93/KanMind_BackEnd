@@ -18,8 +18,9 @@ class RegistrationView(APIView):
             token, created = Token.objects.get_or_create(user=saved_account)
             data = {
                 'token'     :   token.key,
-                'fullname'  :   saved_account.fullname,
-                'email'     :   saved_account.email
+                'fullname'  :   saved_account.get_full_name(),
+                'email'     :   saved_account.email,
+                'id'        :   saved_account.id
             }
         else:
              return Response(serializer.errors, status=400)
@@ -38,7 +39,10 @@ class LoginView(APIView):
             user = serializer.validated_data['user']
             token, created = Token.objects.get_or_create(user=user)
             data = {
-                'token'     :   token.key
+                'token'     : token.key,
+                'fullname'  : user.get_full_name(),
+                'email'     : user.email,
+                'id'        : user.id
             }
         else:
              return Response(serializer.errors, status=400)
