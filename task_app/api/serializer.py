@@ -22,8 +22,10 @@ class TaskSerializer (serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['assignee_id'] = UserSerializer(instance.assignee_id).data if instance.assignee_id else None
-        data['reviewer_id'] = UserSerializer(instance.reviewer_id).data if instance.reviewer_id else None
+        data['assignee'] = UserSerializer(instance.assignee_id).data if instance.assignee_id else None
+        data['reviewer'] = UserSerializer(instance.reviewer_id).data if instance.reviewer_id else None
+        del data['assignee_id']
+        del data['reviewer_id']
         return data
     
     def update(self, instance, validated_data):

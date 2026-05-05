@@ -27,7 +27,7 @@ class BoardListView(APIView):
         return Response(serializer.errors, status=400)
     
 class BoardDetailView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get (self, request, pk):
         board = Board.objects.get(pk = pk)
@@ -41,6 +41,7 @@ class BoardDetailView(APIView):
             members = request.data.get('members', None)
             if members is not None:
                 board.members.set(members)
+                board.members.add(board.owner_id)
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
