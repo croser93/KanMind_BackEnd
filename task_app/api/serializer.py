@@ -16,7 +16,7 @@ class TaskSerializer (serializers.ModelSerializer):
     comments_count = serializers.SerializerMethodField()
     class Meta:
         model = CreateTask
-        fields = ['id', 'title', 'description', 'status', 'priority', 'due_date', 'board', 'reviewer_id', 'assignee_id', 'comments_count']
+        fields = ['id', 'title', 'description', 'status', 'priority','assignee_id', 'reviewer_id', 'due_date', 'board', 'comments_count']
         extra_kwargs = {
             'assignee_id': {'required': False, 'allow_null': True},
             'reviewer_id': {'required': False, 'allow_null': True},

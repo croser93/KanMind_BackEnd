@@ -21,7 +21,7 @@ class BoardSerializer(serializers.ModelSerializer):
     tasks_high_prio_count= serializers.SerializerMethodField()
     class Meta:
         model = Board
-        fields = ['id', 'title', 'owner_id', 'member_count', 'ticket_count', 'tasks_to_do_count', 'tasks_high_prio_count']
+        fields = ['id', 'title', 'member_count', 'ticket_count','tasks_to_do_count', 'tasks_high_prio_count' ,'owner_id']
         extra_kwargs = {
             'owner_id': {'required': False}
         }
@@ -43,8 +43,9 @@ class BoardSerializer(serializers.ModelSerializer):
 class BoardDetailSerializer(BoardSerializer):
     tasks = TaskSerializer(many=True, read_only=True)
     comments_count = serializers.SerializerMethodField()
+
     class Meta(BoardSerializer.Meta):
-        fields = BoardSerializer.Meta.fields + ['tasks', 'comments_count']
+        fields = ['id', 'title', 'owner_id', 'members', 'tasks', 'comments_count']
         extra_kwargs = {
             'members': {'required': False}
         }

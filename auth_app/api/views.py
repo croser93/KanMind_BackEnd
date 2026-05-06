@@ -20,7 +20,7 @@ class RegistrationView(APIView):
                 'token'     :   token.key,
                 'fullname'  :   saved_account.get_full_name(),
                 'email'     :   saved_account.email,
-                'id'        :   saved_account.id
+                'user_id'   :   saved_account.id
             }
         else:
              return Response(serializer.errors, status=400)
@@ -42,7 +42,7 @@ class LoginView(APIView):
                 'token'     : token.key,
                 'fullname'  : user.get_full_name(),
                 'email'     : user.email,
-                'id'        : user.id
+                'user_id'   : user.id
             }
         else:
              return Response(serializer.errors, status=400)
