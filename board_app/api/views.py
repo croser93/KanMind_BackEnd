@@ -1,23 +1,20 @@
-from django import tasks
 
 from .serializer import BoardSerializer, BoardDetailSerializer, UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from board_app.models import Board
 from django.contrib.auth.models import User
-from task_app.api.permissions import IsReviewerOrAssigneeOrAdmin
-from rest_framework.permissions import IsAuthenticated , AllowAny
-
+from board_app.api.permissions import IsOwnerOrAdmin
+from rest_framework.permissions import IsAuthenticated
 
 class BoardListView(APIView):
-    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin, IsAuthenticated]
 
     def get(self, request):
         boards = Board.objects.filter(members=request.user)
         serializer = BoardSerializer(boards, many=True)
-        if serializer.is_valid():
-            return Response(serializer.data, status=200)
-        return Response(serializer.errors, status=400)
+        return Response(serializer.data, status=200)
+
     
     def post(self, request):
         serializer = BoardSerializer(data=request.data)
@@ -30,7 +27,7 @@ class BoardListView(APIView):
         return Response(serializer.errors, status=400)
     
 class BoardDetailView(APIView):
-    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin, IsAuthenticated]
 
     def get (self, request, pk):
         board = Board.objects.get(pk = pk)
@@ -38,8 +35,8 @@ class BoardDetailView(APIView):
         return Response(serializer.data)
     
     def patch (self, request, pk):
-        self.check_object_permissions(request, tasks)
         board = Board.objects.get(pk = pk)
+        self.check_object_permissions(request, board)
         serializer = BoardDetailSerializer(board, data=request.data, partial=True)
         if serializer.is_valid():
             members = request.data.get('members', None)
@@ -51,13 +48,13 @@ class BoardDetailView(APIView):
         return Response(serializer.errors, status=400)
     
     def delete (self, request, pk):
-        self.check_object_permissions(request, tasks)
         board = Board.objects.get(pk = pk)
+        self.check_object_permissions(request, board)
         board.delete()
         return Response({"message" : "successfully deleted",}, status=204)
     
 class EmailView(APIView):
-    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
+    permission_classes = [IsOwnerOrAdmin, IsAuthenticated]
 
     def get (self, request):
         email = request.query_params.get('email')

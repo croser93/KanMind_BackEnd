@@ -23,31 +23,31 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return value
     
         
-def save(self):
-    pw = self.validated_data['password']
-    repeated_password = self.validated_data['repeated_password']
-    email = self.validated_data['email']
-    all_email = User.objects.values_list('email', flat=True)
-    full_name = self.validated_data['fullname']
-    name_parts = full_name.split()
-    first_name = name_parts[0]
-    last_name = ' '.join(name_parts[1:])
+    def save(self):
+        pw = self.validated_data['password']
+        repeated_password = self.validated_data['repeated_password']
+        email = self.validated_data['email']
+        all_email = User.objects.values_list('email', flat=True)
+        full_name = self.validated_data['fullname']
+        name_parts = full_name.split()
+        first_name = name_parts[0]
+        last_name = ' '.join(name_parts[1:])
 
-    if pw != repeated_password:
-        raise serializers.ValidationError({'error': 'password dont match'})
-    
-    if email in all_email:
-        raise serializers.ValidationError({'error': 'email is used'})
-    
-    account = User(
-        email=email,
-        username=first_name + '-' + last_name,
-        first_name=first_name,
-        last_name=last_name
-    )
-    account.set_password(pw)
-    account.save()
-    return account
+        if pw != repeated_password:
+            raise serializers.ValidationError({'error': 'password dont match'})
+        
+        if email in all_email:
+            raise serializers.ValidationError({'error': 'email is used'})
+        
+        account = User(
+            email=email,
+            username=first_name + '-' + last_name,
+            first_name=first_name,
+            last_name=last_name
+        )
+        account.set_password(pw)
+        account.save()
+        return account
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

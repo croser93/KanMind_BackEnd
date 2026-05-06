@@ -40,7 +40,6 @@ class TaskDetailView(APIView):
         
         def patch(self, request, pk):
             tasks = CreateTask.objects.get(pk=pk)
-            self.check_object_permissions(request, tasks)
             serializer = TaskSerializer(tasks, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
