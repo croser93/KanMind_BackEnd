@@ -1,12 +1,16 @@
+from asyncio import tasks
+
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .permissions import IsRieviewerOrAssigneeOrAdmin
+from .permissions import IsReviewerOrAssigneeOrAdmin
 from .serializer import TaskSerializer, CommentsSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
 from task_app.models import CreateTask, Comments
+from rest_framework import serializers
+
 
 class TaskListView(APIView):
 
@@ -15,7 +19,7 @@ class TaskListView(APIView):
     def post(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(reviewer_id=request.user)
+            serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
@@ -24,9 +28,10 @@ class TaskListView(APIView):
         serializer = TaskSerializer(tasks, many=True)
         return Response({"message" : "successfully retrieved", 'data':serializer.data}, status=200)
     
+
 class TaskDetailView(APIView):
         
-        permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+        permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
 
         def get(self, request, pk):
             tasks = CreateTask.objects.get(pk=pk)
@@ -43,12 +48,13 @@ class TaskDetailView(APIView):
         
         def delete(self, request, pk):
                 tasks = CreateTask.objects.get(pk=pk)
+                self.check_object_permissions(request, tasks)
                 tasks.delete()
                 return Response({"message" : "successfully deleted",}, status=204)
 
 class CommentView(APIView):
      
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get(self, request, pk):
             comment = Comments.objects.filter(task=pk)
@@ -65,7 +71,7 @@ class CommentView(APIView):
      
 class CommentDetailView(APIView):
      
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get(self, request, task_pk, comment_pk):
         comment = Comments.objects.get(task=task_pk, pk=comment_pk)
@@ -73,14 +79,15 @@ class CommentDetailView(APIView):
         return Response(serializer.data)
     
     def delete(self, request, task_pk, comment_pk):
+        self.check_object_permissions(request, tasks)
         comment = Comments.objects.get(task=task_pk, pk=comment_pk)  
         comment.delete()
         return Response({"message" : "successfully deleted",}, status=204)
     
 
 class AssignToMeView(APIView):
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
 
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         tasks = CreateTask.objects.filter(assignee_id=request.user)
         serializer = TaskSerializer(tasks, many=True)
@@ -88,7 +95,8 @@ class AssignToMeView(APIView):
 
 
 class ReviewingView(APIView):
-    permission_classes = [IsRieviewerOrAssigneeOrAdmin, IsAuthenticated]
+
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         tasks = CreateTask.objects.filter(reviewer_id=request.user)
         serializer = TaskSerializer(tasks, many=True)

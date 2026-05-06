@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 
-class IsRieviewerOrAssigneeOrAdmin(BasePermission):
+class IsReviewerOrAssigneeOrAdmin(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True

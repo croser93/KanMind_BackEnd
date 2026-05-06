@@ -24,6 +24,6 @@ urlpatterns = [
     path('api/', include('task_app.api.urls')),
 
     
-    #zum schluss wieder löschen
+
     path('api-auth/', include('rest_framework.urls')),
 ]
