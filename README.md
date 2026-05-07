@@ -165,7 +165,7 @@ Nach erfolgreichem Login wird ein Token zurückgegeben:
   "token": "abc123...",
   "fullname": "Max Mustermann",
   "email": "max@example.com",
-  "id": 1
+  "user_id": 1
 }
 ```
 
