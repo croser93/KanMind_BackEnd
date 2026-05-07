@@ -34,32 +34,46 @@ class TaskDetailView(APIView):
         permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
 
         def get(self, request, pk):
-            tasks = CreateTask.objects.get(pk=pk)
-            serializer = TaskSerializer(tasks)
-            return Response(serializer.data)
+            try:
+                tasks = CreateTask.objects.get(pk=pk)
+                serializer = TaskSerializer(tasks)
+                return Response(serializer.data)
+            except CreateTask.DoesNotExist:
+                 return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
         
         def patch(self, request, pk):
-            tasks = CreateTask.objects.get(pk=pk)
-            serializer = TaskSerializer(tasks, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
+            try:
+                tasks = CreateTask.objects.get(pk=pk)
+                serializer = TaskSerializer(tasks, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=201)
+                return Response(serializer.errors, status=400)
+            except CreateTask.DoesNotExist:
+                 return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
         
         def delete(self, request, pk):
+            try:
                 tasks = CreateTask.objects.get(pk=pk)
                 self.check_object_permissions(request, tasks)
                 tasks.delete()
                 return Response({"message" : "successfully deleted",}, status=204)
+            except CreateTask.DoesNotExist:
+                 return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
 
 class CommentView(APIView):
      
     permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get(self, request, pk):
+        try:
             comment = Comments.objects.filter(task=pk)
             serializer = CommentsSerializer(comment, many=True)
             return Response(serializer.data)
+        except Comments.DoesNotExist:
+            return Response({"error" : "Kommentar oder Task nicht gefunden.",}, status=404)
+
+
     
     def post(self, request, pk):
             serializer = CommentsSerializer(data=request.data)
@@ -74,15 +88,22 @@ class CommentDetailView(APIView):
     permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
 
     def get(self, request, task_pk, comment_pk):
-        comment = Comments.objects.get(task=task_pk, pk=comment_pk)
-        serializer = CommentsSerializer(comment)
-        return Response(serializer.data)
+        try:
+            comment = Comments.objects.get(task=task_pk, pk=comment_pk)
+            serializer = CommentsSerializer(comment)
+            return Response(serializer.data)
+        except Comments.DoesNotExist:
+            return Response({"error" : "Kommentar oder Task nicht gefunden.",}, status=404)
     
     def delete(self, request, task_pk, comment_pk):
-        self.check_object_permissions(request, tasks)
-        comment = Comments.objects.get(task=task_pk, pk=comment_pk)  
-        comment.delete()
-        return Response({"message" : "successfully deleted",}, status=204)
+        try:
+            self.check_object_permissions(request, tasks)
+            comment = Comments.objects.get(task=task_pk, pk=comment_pk)  
+            comment.delete()
+            return Response({"message" : "successfully deleted",}, status=204)
+        except Comments.DoesNotExist:
+            return Response({"error" : "Kommentar oder Task nicht gefunden.",}, status=404)
+    
     
 
 class AssignToMeView(APIView):
