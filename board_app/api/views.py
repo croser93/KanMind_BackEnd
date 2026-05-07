@@ -32,6 +32,7 @@ class BoardDetailView(APIView):
     def get (self, request, pk):
         try:
             board = Board.objects.get(pk = pk)
+            self.check_object_permissions(request, board)
             serializer = BoardDetailSerializer(board)
             return Response(serializer.data)
         except Board.DoesNotExist:
@@ -58,7 +59,7 @@ class BoardDetailView(APIView):
             board = Board.objects.get(pk = pk)
             self.check_object_permissions(request, board)
             board.delete()
-            return Response({"message" : "successfully deleted",}, status=204)
+            return Response(status=204)
         except Board.DoesNotExist:
             return Response({"error": "Board nicht gefunden. Die angegebene Board-ID existiert nicht."}, status=404)
 
@@ -75,5 +76,5 @@ class EmailView(APIView):
                 return Response (serializer.data, status=200)
             return Response ({'error': 'Ungültige Anfrage. Die E-Mail-Adresse fehlt oder hat ein falsches Formatd'}, status=400)
         except User.DoesNotExist:
-            return self.response({'error': 'Email nicht gefunden. Die Email exestiert nicht'}, status=400)
+            return self.response({'error': 'Email nicht gefunden. Die Email exestiert nicht'}, status=404)
 

@@ -36,6 +36,7 @@ class TaskDetailView(APIView):
         def get(self, request, pk):
             try:
                 tasks = CreateTask.objects.get(pk=pk)
+                self.check_object_permissions(request, tasks)
                 serializer = TaskSerializer(tasks)
                 return Response(serializer.data)
             except CreateTask.DoesNotExist:
@@ -44,10 +45,11 @@ class TaskDetailView(APIView):
         def patch(self, request, pk):
             try:
                 tasks = CreateTask.objects.get(pk=pk)
+                self.check_object_permissions(request, tasks)
                 serializer = TaskSerializer(tasks, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data, status=201)
+                    return Response(serializer.data, status=200)
                 return Response(serializer.errors, status=400)
             except CreateTask.DoesNotExist:
                  return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
