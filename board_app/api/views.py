@@ -1,5 +1,5 @@
 
-from .serializer import BoardSerializer, BoardDetailSerializer, UserSerializer
+from .serializer import BoardSerializer, BoardDetailSerializer, UserSerializer, BoardPatchSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from board_app.models import Board
@@ -41,14 +41,14 @@ class BoardDetailView(APIView):
         try:
             board = Board.objects.get(pk = pk)
             self.check_object_permissions(request, board)
-            serializer = BoardDetailSerializer(board, data=request.data, partial=True)
+            serializer = BoardPatchSerializer(board, data=request.data, partial=True)
             if serializer.is_valid():
                 members = request.data.get('members', None)
                 if members is not None:
                     board.members.set(members)
                     board.members.add(board.owner_id)
                 serializer.save()
-                return Response(serializer.data, status=201)
+                return Response(serializer.data, status=200)
             return Response(serializer.errors, status=400)
         except Board.DoesNotExist:
              return Response({"error": "Board nicht gefunden. Die angegebene Board-ID existiert nicht."}, status=404)
