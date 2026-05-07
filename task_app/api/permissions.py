@@ -8,4 +8,3 @@ class IsReviewerOrAssigneeOrAdmin(BasePermission):
             return bool(request.user and (request.user.is_superuser or request.user == obj.reviewer_id or request.user == obj.assignee_id))
         elif request.method == 'DELETE':
             return bool(request.user and (request.user.is_superuser or request.user == obj.reviewer_id))
-        

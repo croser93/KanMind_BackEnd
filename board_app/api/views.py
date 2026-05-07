@@ -50,7 +50,7 @@ class BoardDetailView(APIView):
                     board.members.add(board.owner_id)
                 serializer.save()
                 return Response(serializer.data, status=200)
-            return Response(serializer.errors, status=400)
+            return Response({"error": "Ungültige Anfragedaten. Möglicherweise sind einige Anfragen ungültig."}, status=400)
         except Board.DoesNotExist:
              return Response({"error": "Board nicht gefunden. Die angegebene Board-ID existiert nicht."}, status=404)
     
@@ -74,7 +74,7 @@ class EmailView(APIView):
             if user: 
                 serializer = UserSerializer(user)
                 return Response (serializer.data, status=200)
-            return Response ({'error': 'Ungültige Anfrage. Die E-Mail-Adresse fehlt oder hat ein falsches Formatd'}, status=400)
+            return Response ({'error': 'Ungültige Anfrage. Die E-Mail-Adresse fehlt oder hat ein falsches Format'}, status=400)
         except User.DoesNotExist:
             return self.response({'error': 'Email nicht gefunden. Die Email exestiert nicht'}, status=404)
 
