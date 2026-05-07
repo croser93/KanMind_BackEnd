@@ -3,7 +3,7 @@ from asyncio import tasks
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .permissions import IsReviewerOrAssigneeOrAdmin
-from .serializer import TaskSerializer, CommentsSerializer
+from .serializer import TaskSerializer, CommentsSerializer, AssignedAndReviewedTaskSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -90,7 +90,7 @@ class AssignToMeView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         tasks = CreateTask.objects.filter(assignee_id=request.user)
-        serializer = TaskSerializer(tasks, many=True)
+        serializer = AssignedAndReviewedTaskSerializer(tasks, many=True)
         return Response(serializer.data, status=200)
 
 
@@ -99,5 +99,5 @@ class ReviewingView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         tasks = CreateTask.objects.filter(reviewer_id=request.user)
-        serializer = TaskSerializer(tasks, many=True)
+        serializer = AssignedAndReviewedTaskSerializer(tasks, many=True)
         return Response(serializer.data, status=200)
