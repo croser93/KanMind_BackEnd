@@ -1,5 +1,3 @@
-from asyncio import tasks
-
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .permissions import IsReviewerOrAssigneeOrAdmin
@@ -10,6 +8,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status
 from task_app.models import CreateTask, Comments
 from rest_framework import serializers
+from board_app.models import Board
 
 
 class TaskListView(APIView):
@@ -17,6 +16,15 @@ class TaskListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        board_id = request.data.get('board')
+        try:
+            board = Board.objects.get(pk=board_id)
+        except Board.DoesNotExist:
+            return Response({"error": "Board nicht gefunden. Die angegebene Board-ID existiert nicht"}, status=404)
+        
+        if not board.members.filter(id=request.user.id).exists():
+            return Response({"error": "Verboten. Der Benutzer muss Mitglied des Boards sein, um eine Task zu erstellen."}, status=403)
+        
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -26,64 +34,93 @@ class TaskListView(APIView):
     def get(self, request):
         tasks = CreateTask.objects.all()
         serializer = TaskSerializer(tasks, many=True)
-        return Response({"message" : "successfully retrieved", 'data':serializer.data}, status=200)
+        return Response({"message" : "Die Task wurde erfolgreich erstellt", 'data':serializer.data}, status=200)
     
 
 class TaskDetailView(APIView):
         
-        permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
-
-        def get(self, request, pk):
+    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
+    def get(self, request, pk):
+        try:
             tasks = CreateTask.objects.get(pk=pk)
+            self.check_object_permissions(request, tasks)
             serializer = TaskSerializer(tasks)
             return Response(serializer.data)
-        
-        def patch(self, request, pk):
+        except CreateTask.DoesNotExist:
+                return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
+    
+    def patch(self, request, pk):
+        try:
             tasks = CreateTask.objects.get(pk=pk)
+            self.check_object_permissions(request, tasks)
             serializer = TaskSerializer(tasks, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=201)
+                return Response(serializer.data, status=200)
             return Response(serializer.errors, status=400)
-        
-        def delete(self, request, pk):
-                tasks = CreateTask.objects.get(pk=pk)
-                self.check_object_permissions(request, tasks)
-                tasks.delete()
-                return Response({"message" : "successfully deleted",}, status=204)
+        except CreateTask.DoesNotExist:
+                return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
+    
+    def delete(self, request, pk):
+        try:
+            tasks = CreateTask.objects.get(pk=pk)
+            self.check_object_permissions(request, tasks)
+            tasks.delete()
+            return Response(status=204)
+        except CreateTask.DoesNotExist:
+                return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
 
 class CommentView(APIView):
      
-    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
-
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
-            comment = Comments.objects.filter(task=pk)
-            serializer = CommentsSerializer(comment, many=True)
-            return Response(serializer.data)
-    
-    def post(self, request, pk):
-            serializer = CommentsSerializer(data=request.data)
+        try:
+            task = CreateTask.objects.get(pk=pk)            
+        except CreateTask.DoesNotExist:
+            return Response({"error": "Task nicht gefunden. Die angegebene Task-ID existiert nicht."}, status=404)
+        
+        if not task.board.members.filter(id=request.user.id).exists():
+            return Response({"error": "Verboten. Der Benutzer muss Mitglied des Boards sein, zu dem die Task gehört."}, status=403)
+        comment = Comments.objects.filter(task=pk)
+        serializer = CommentsSerializer(comment, many=True)
+        return Response(serializer.data)
 
-            if serializer.is_valid():
-                serializer.save(task_id=pk, author=request.user)
-                return Response(serializer.data, status=201)
-            return Response(serializer.errors, status=400)
-     
+    def post(self, request, pk):
+        try:
+            task = CreateTask.objects.get(pk=pk)
+        except CreateTask.DoesNotExist:
+            return Response({"error": "Task nicht gefunden. Die angegebene Task-ID existiert nicht."}, status=404)
+        
+        if not task.board.members.filter(id=request.user.id).exists():
+            return Response({"error": "Verboten. Der Benutzer muss Mitglied des Boards sein, zu dem die Task gehört."}, status=403)
+        
+        serializer = CommentsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(task_id=pk, author=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
 class CommentDetailView(APIView):
      
-    permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
-
+    permission_classes = [IsAuthenticated]
     def get(self, request, task_pk, comment_pk):
-        comment = Comments.objects.get(task=task_pk, pk=comment_pk)
-        serializer = CommentsSerializer(comment)
-        return Response(serializer.data)
+        try:
+            comment = Comments.objects.get(task=task_pk, pk=comment_pk)
+            if not comment.task.board.members.filter(id=request.user.id).exists():
+                return Response({"error": "Verboten. Der Benutzer muss Mitglied des Boards sein, zu dem die Task gehört."}, status=403)
+            serializer = CommentsSerializer(comment)
+            return Response(serializer.data)
+        except Comments.DoesNotExist:
+            return Response({"error" : "Kommentar oder Task nicht gefunden.",}, status=404)
     
     def delete(self, request, task_pk, comment_pk):
-        self.check_object_permissions(request, tasks)
-        comment = Comments.objects.get(task=task_pk, pk=comment_pk)  
+        try:
+            comment = Comments.objects.get(task=task_pk, pk=comment_pk)  
+        except Comments.DoesNotExist:
+            return Response({"error" : "Kommentar oder Task nicht gefunden.",}, status=404)
+        if comment.author != request.user:
+            return Response({"error": "Verboten. Der Benutzer muss Mitglied des Boards sein, zu dem die Task gehört.."}, status=403)  
         comment.delete()
-        return Response({"message" : "successfully deleted",}, status=204)
-    
+        return Response(status=204)
 
 class AssignToMeView(APIView):
 
@@ -92,7 +129,6 @@ class AssignToMeView(APIView):
         tasks = CreateTask.objects.filter(assignee_id=request.user)
         serializer = AssignedAndReviewedTaskSerializer(tasks, many=True)
         return Response(serializer.data, status=200)
-
 
 class ReviewingView(APIView):
 

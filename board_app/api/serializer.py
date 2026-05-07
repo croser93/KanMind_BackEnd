@@ -72,6 +72,17 @@ class BoardDetailSerializer(BoardSerializer):
             return data
 
 
-  
+class BoardPatchSerializer(BoardSerializer):
+    owner_data = serializers.SerializerMethodField()
+    members_data = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Board
+        fields = ['id','title', 'owner_data', 'members_data']
+
+    def get_owner_data(self, obj):
+        return UserSerializer(obj.owner_id).data
     
+    def get_members_data(self, obj):
+        return UserSerializer(obj.members.all(), many=True).data
+
