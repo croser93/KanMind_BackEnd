@@ -4,11 +4,16 @@ from django.core.validators import RegexValidator
 from django.contrib.auth import authenticate
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for registration a new User.
+    
+    calculated fields:
+        - repeated_password = check is the password even repeated_password
+        - fullname  =    Vadlidate the name form User
+    """
 
     repeated_password = serializers.CharField(write_only=True)
-    fullname = serializers.CharField(
-        validators=[RegexValidator(r'^[a-zA-ZäöüÄÖÜß\s]+$', 'Only letters and spaces allowed.')]
-    )
+    fullname = serializers.CharField(validators=[RegexValidator(r'^[a-zA-ZäöüÄÖÜß\s]+$', 'Only letters and spaces allowed.')])
     class Meta:
         model = User
         fields = ['fullname', 'email', 'password', 'repeated_password']
@@ -50,6 +55,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return account
 
 class LoginSerializer(serializers.Serializer):
+
+    """
+    Serializer for log in.
+    
+    calculated fields:
+        - email     =   Validate the field email with DB
+        - password  =   Validate the field password with DB
+
+    """
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 

@@ -9,6 +9,14 @@ from rest_framework.permissions import IsAuthenticated
 
 class BoardListView(APIView):
     permission_classes = [IsOwnerOrAdmin, IsAuthenticated]
+    
+    """
+    View List for managing Kanban board.
+    
+    Endpoints:
+    - GET /api/boards/ - List all boards where user is a member
+    - POST /api/boards/ - Create a new board
+    """
 
     def get(self, request):
             boards = Board.objects.filter(members=request.user)
@@ -28,6 +36,15 @@ class BoardListView(APIView):
     
 class BoardDetailView(APIView):
     permission_classes = [IsOwnerOrAdmin, IsAuthenticated]
+
+    """
+    Single View for managing board.
+    
+    Endpoints:
+    - GET /api/boards/{ID} - Single board where user is a member
+    - PATCH /api/boards/{ID} - Update a signle board
+    - DELETE /api/boards/{ID} - Delete a single board
+    """
 
     def get (self, request, pk):
         try:
@@ -66,6 +83,13 @@ class BoardDetailView(APIView):
     
 class EmailView(APIView):
     permission_classes = [IsOwnerOrAdmin, IsAuthenticated]
+
+    """
+    Check is email available
+      
+    Endpoints:
+    - GET /api/email-check/ - Get a email from User
+    """
 
     def get (self, request):
         try:
