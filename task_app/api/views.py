@@ -14,6 +14,14 @@ from board_app.models import Board
 class TaskListView(APIView):
 
     permission_classes = [IsAuthenticated]
+        
+    """
+    View List for managing Kanban tasks.
+    
+    Endpoints:
+    - GET /api/tasks/ - List of all tasks 
+    - POST /api/tasks/ - Create a new tasks
+    """
 
     def post(self, request):
         board_id = request.data.get('board')
@@ -40,6 +48,15 @@ class TaskListView(APIView):
 class TaskDetailView(APIView):
         
     permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
+        
+    """
+    View for a single Kanban tasks in a board.
+    
+    Endpoints:
+    - GET /api/tasks/{ID}/ - a single task where user is a member
+    - PATCH /api/tasks/{ID}/ - a single task where user is a member
+    - DELETE /api/tasks/{ID}/ - a single task where user is a member
+    """
     def get(self, request, pk):
         try:
             tasks = CreateTask.objects.get(pk=pk)
@@ -73,6 +90,14 @@ class TaskDetailView(APIView):
 class CommentView(APIView):
      
     permission_classes = [IsAuthenticated]
+        
+    """
+    View comment list in a tasks for managing in Kanban board.
+    
+    Endpoints:
+    - GET /api/tasks/{ID}/comments/ - List all comments from a Task user is a member
+    - POST /api/tasks/{ID}/comments/ - Create a new comment in a Task user is a member
+    """
     def get(self, request, pk):
         try:
             task = CreateTask.objects.get(pk=pk)            
@@ -102,6 +127,14 @@ class CommentView(APIView):
 class CommentDetailView(APIView):
      
     permission_classes = [IsAuthenticated]
+        
+    """
+    View a signle Comment in a tasks for managing in Kanban board.
+    
+    Endpoints:
+    - GET /api/tasks/{ID}/comments/{ID}/ - Single comments from a Task user is a member
+    - DELETE /api/tasks/{ID}/comments/{ID}/ - Delete single comments from a Task user is a member
+    """
     def get(self, request, task_pk, comment_pk):
         try:
             comment = Comments.objects.get(task=task_pk, pk=comment_pk)
@@ -125,6 +158,14 @@ class CommentDetailView(APIView):
 class AssignToMeView(APIView):
 
     permission_classes = [IsAuthenticated]
+        
+    """
+    View List for tasks from Kanban board User = assigned-to-me .
+    
+    Endpoints:
+    - GET /api/tasks/assigned-to-me/ - List all task where user is assigned-to-me
+
+    """
     def get(self, request):
         tasks = CreateTask.objects.filter(assignee_id=request.user)
         serializer = AssignedAndReviewedTaskSerializer(tasks, many=True)
@@ -133,6 +174,13 @@ class AssignToMeView(APIView):
 class ReviewingView(APIView):
 
     permission_classes = [IsAuthenticated]
+        
+    """
+    View List for tasks from Kanban board User = reviewing.
+    
+    Endpoints:
+    - GET /api/tasks/reviewing/ - List all task where user is reviewing
+    """
     def get(self, request):
         tasks = CreateTask.objects.filter(reviewer_id=request.user)
         serializer = AssignedAndReviewedTaskSerializer(tasks, many=True)

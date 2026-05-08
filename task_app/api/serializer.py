@@ -4,14 +4,29 @@ from task_app.models import CreateTask, Comments
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
-        fullname = serializers.SerializerMethodField()
-        class Meta:
-            model = User
-            fields =['id', 'email','fullname']
+    
+    """
+    Serializer to Use the User Data.
 
-        def get_fullname(self, obj):
-            return obj.get_full_name() or obj.username
+    calculated fields:
+        - fullname : First and Lastname form User
+    """
+
+    fullname = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields =['id', 'email','fullname']
+
+    def get_fullname(self, obj):
+        return obj.get_full_name() or obj.username
 class TaskSerializer (serializers.ModelSerializer):
+
+    """
+    Serializer for listing tasks with summary statistics.
+    
+    calculated fields:
+        - comments_count: Number of the comments in a task.
+    """
 
     comments_count = serializers.SerializerMethodField()
     class Meta:
@@ -38,6 +53,13 @@ class TaskSerializer (serializers.ModelSerializer):
         return obj.comments.count()
 
 class CommentsSerializer(serializers.ModelSerializer):
+
+    """
+    Serializer for listing the comments.
+    
+    calculated fields:
+        - author: Return the User Obj
+    """
     author = serializers.SerializerMethodField()
     class Meta:
           model = Comments
@@ -47,7 +69,10 @@ class CommentsSerializer(serializers.ModelSerializer):
          return obj.author.get_full_name()
     
 class AssignedAndReviewedTaskSerializer(TaskSerializer):
-     
-     class Meta:
-          model = CreateTask
-          fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee_id', 'reviewer_id', 'due_date', 'comments_count']
+    """ 
+    Serializer for listing user with assigned-to-me or reviewing tasks.
+
+    """     
+    class Meta:
+        model = CreateTask
+        fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee_id', 'reviewer_id', 'due_date', 'comments_count']
