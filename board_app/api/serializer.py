@@ -5,6 +5,14 @@ from task_app.api.serializer import TaskSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    """
+    Serializer to Use the User Data.
+
+    calculated fields:
+        - fullname : First and Lastname form User
+    """
+
     fullname = serializers.SerializerMethodField()
     class Meta:
         model = User
@@ -14,6 +22,15 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.get_full_name()
     
 class BoardSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing boards with summary statistics.
+    
+    calculated fields:
+        - member_count: Number of board members
+        - ticket_count: Total number of tasks on the board
+        - tasks_to_do_count: Number of tasks with 'to-do' status
+        - tasks_high_prio_count: Number of high-priority tasks
+    """
 
     member_count= serializers.SerializerMethodField()
     ticket_count= serializers.SerializerMethodField()
@@ -41,6 +58,15 @@ class BoardSerializer(serializers.ModelSerializer):
 
     
 class BoardDetailSerializer(BoardSerializer):
+
+    """
+    Serializer for listing a single board.
+    
+    calculated fields:
+        - tasks: Return the Task Obj in the Single Board 
+        - comments_count: Number of comments in a Task
+    """
+
     tasks = TaskSerializer(many=True, read_only=True)
     comments_count = serializers.SerializerMethodField()
 
@@ -73,6 +99,14 @@ class BoardDetailSerializer(BoardSerializer):
 
 
 class BoardPatchSerializer(BoardSerializer):
+
+    """
+    Serializer for patch a single board with converted data.
+    
+    calculated fields:
+        - owner_data: Return the data from the ID to a Obj
+        - members_data: Return the data from the ID to a Obj
+    """
     owner_data = serializers.SerializerMethodField()
     members_data = serializers.SerializerMethodField()
 

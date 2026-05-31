@@ -9,6 +9,13 @@ from rest_framework import status
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
+    """
+    View  for create a new User for Kanban board.
+    
+    Endpoints:
+    - POST /api/registration/ - Create a new bUser.
+    """
+
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
 
@@ -28,6 +35,14 @@ class RegistrationView(APIView):
 
 
 class LoginView(APIView):
+
+    """
+    View for Log in in the Kanban board.
+    
+    Endpoints:
+
+    - POST /api/login/ - The user is logged in, and the token is created.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -48,6 +63,13 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
+
+    """
+    View for Log out from the Kanban board.
+    
+    Endpoints:
+    - POST /api/logout/ - The user is logged out, and the token is deleted.
+    """
 
     def post(self, request):
         request.user.auth_token.delete()
