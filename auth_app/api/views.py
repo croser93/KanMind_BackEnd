@@ -23,8 +23,7 @@ class RegistrationView(APIView):
                 'user_id'   :   saved_account.id
             }
         else:
-             return Response(serializer.errors, status=400)
-
+            return Response(serializer.errors, status=400)
         return Response(data, status=201)
 
 
@@ -33,7 +32,6 @@ class LoginView(APIView):
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-
         data = {}
         if serializer.is_valid():
             user = serializer.validated_data['user']
@@ -45,8 +43,7 @@ class LoginView(APIView):
                 'user_id'   : user.id
             }
         else:
-             return Response(serializer.errors, status=400)
-
+            return Response(serializer.errors, status=400)
         return Response(data, status=200)
 
 class LogoutView(APIView):

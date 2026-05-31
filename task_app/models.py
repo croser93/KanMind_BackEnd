@@ -9,7 +9,6 @@ class CreateTask(models.Model):
         ('review', 'Review'),
         ('done', ' Done')
     ]
-    
     PRIORITY_CHOICES = [
         ('low', 'Low'),
         ('medium', 'Medium'),

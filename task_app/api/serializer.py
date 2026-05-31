@@ -40,14 +40,13 @@ class TaskSerializer (serializers.ModelSerializer):
 class CommentsSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     class Meta:
-          model = Comments
-          fields =['id' , 'author', 'created_at', 'content']
+        model = Comments
+        fields =['id' , 'author', 'created_at', 'content']
 
     def get_author(self, obj):
-         return obj.author.get_full_name()
+        return obj.author.get_full_name()
     
 class AssignedAndReviewedTaskSerializer(TaskSerializer):
-     
-     class Meta:
-          model = CreateTask
-          fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee_id', 'reviewer_id', 'due_date', 'comments_count']
+    class Meta:
+        model = CreateTask
+        fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee_id', 'reviewer_id', 'due_date', 'comments_count']

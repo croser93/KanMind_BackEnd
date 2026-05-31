@@ -37,9 +37,9 @@ class TaskListView(APIView):
         return Response({"message" : "Die Task wurde erfolgreich erstellt", 'data':serializer.data}, status=200)
     
 
-class TaskDetailView(APIView):
-        
+class TaskDetailView(APIView):  
     permission_classes = [IsReviewerOrAssigneeOrAdmin, IsAuthenticated]
+
     def get(self, request, pk):
         try:
             tasks = CreateTask.objects.get(pk=pk)
@@ -71,8 +71,8 @@ class TaskDetailView(APIView):
                 return Response({"error" : "Task nicht gefunden. Die angegebene Task-ID existiert nicht.",}, status=404)
 
 class CommentView(APIView):
-     
     permission_classes = [IsAuthenticated]
+
     def get(self, request, pk):
         try:
             task = CreateTask.objects.get(pk=pk)            
@@ -100,8 +100,8 @@ class CommentView(APIView):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 class CommentDetailView(APIView):
-     
     permission_classes = [IsAuthenticated]
+
     def get(self, request, task_pk, comment_pk):
         try:
             comment = Comments.objects.get(task=task_pk, pk=comment_pk)
@@ -123,16 +123,16 @@ class CommentDetailView(APIView):
         return Response(status=204)
 
 class AssignToMeView(APIView):
-
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         tasks = CreateTask.objects.filter(assignee_id=request.user)
         serializer = AssignedAndReviewedTaskSerializer(tasks, many=True)
         return Response(serializer.data, status=200)
 
 class ReviewingView(APIView):
-
     permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         tasks = CreateTask.objects.filter(reviewer_id=request.user)
         serializer = AssignedAndReviewedTaskSerializer(tasks, many=True)

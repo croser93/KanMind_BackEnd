@@ -4,7 +4,6 @@ from django.core.validators import RegexValidator
 from django.contrib.auth import authenticate
 
 class RegistrationSerializer(serializers.ModelSerializer):
-
     repeated_password = serializers.CharField(write_only=True)
     fullname = serializers.CharField(
         validators=[RegexValidator(r'^[a-zA-ZäöüÄÖÜß\s]+$', 'Only letters and spaces allowed.')]
@@ -21,7 +20,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if len(value.split()) < 2:
             raise serializers.ValidationError({'error': 'Enter your Firstname and Lastname'})
         return value
-    
         
     def save(self):
         pw = self.validated_data['password']

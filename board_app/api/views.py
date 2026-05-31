@@ -11,9 +11,9 @@ class BoardListView(APIView):
     permission_classes = [IsOwnerOrAdmin, IsAuthenticated]
 
     def get(self, request):
-            boards = Board.objects.filter(members=request.user)
-            serializer = BoardSerializer(boards, many=True)
-            return Response(serializer.data, status=200)
+        boards = Board.objects.filter(members=request.user)
+        serializer = BoardSerializer(boards, many=True)
+        return Response(serializer.data, status=200)
 
     
     def post(self, request):
@@ -52,7 +52,7 @@ class BoardDetailView(APIView):
                 return Response(serializer.data, status=200)
             return Response({"error": "Ungültige Anfragedaten. Möglicherweise sind einige Anfragen ungültig."}, status=400)
         except Board.DoesNotExist:
-             return Response({"error": "Board nicht gefunden. Die angegebene Board-ID existiert nicht."}, status=404)
+            return Response({"error": "Board nicht gefunden. Die angegebene Board-ID existiert nicht."}, status=404)
     
     def delete (self, request, pk):
         try:
