@@ -1,57 +1,57 @@
 # KanMind Backend
 
-**KanMind** ist eine Kanban-Board-Anwendung zur Aufgabenverwaltung im Team. Dieses Repository enthält das **Django REST Framework Backend**.
+**KanMind** is a Kanban board application designed for team-based task management. This repository contains the **Django REST Framework backend**.
 
-> Dieses Projekt ist ein **Lernprojekt** und mein erstes selbst entwickeltes Backend. Es wurde im Rahmen meiner Weiterbildung erstellt.
+> This project is a **learning project** and my first self-developed backend application. It was created as part of my software development training.
 
-Das zugehörige Frontend befindet sich hier: [KanMind FrontEnd](https://github.com/croser93/KanMind_FrontEnd.git)
-
----
-
-## Inhaltsverzeichnis
-
-- [Technologien](#technologien)
-- [Features](#features)
-- [Projektstruktur](#projektstruktur)
-- [Installation & Setup](#installation--setup)
-- [API Endpoints](#api-endpoints)
-- [Authentifizierung](#authentifizierung)
-- [Datenmodell](#datenmodell)
+The corresponding frontend can be found here:
+**KanMind Frontend:** https://github.com/croser93/KanMind_FrontEnd.git
 
 ---
 
-## Technologien
+## Table of Contents
 
-| Technologie | Version |
-|---|---|
-| Python | 3.x |
-| Django | 6.0.4 |
-| Django REST Framework | 3.17.1 |
-| SQLite3 | (Dateibasiert) |
-| django-cors-headers | - |
+* [Technologies](#technologies)
+* [Features](#features)
+* [Project Structure](#project-structure)
+* [Installation & Setup](#installation--setup)
+* [Demo Users](#demo-users)
+* [Author](#author)
+
+---
+
+## Technologies
+
+| Technology            | Version    |
+| --------------------- | ---------- |
+| Python                | 3.14.4     |
+| Django                | 6.0.4      |
+| Django REST Framework | 3.17.1     |
+| SQLite3               | File-based |
+| django-cors-headers   | 4.9.0      |
 
 ---
 
 ## Features
 
-- Benutzerregistrierung und Login mit Token-Authentifizierung
-- Boards anlegen, bearbeiten und löschen
-- Mitglieder zu Boards hinzufügen
-- Aufgaben (Tasks) mit Status, Priorität, Fälligkeitsdatum, Bearbeiter und Reviewer anlegen
-- Kommentare zu Aufgaben schreiben
-- Eigene zugewiesene Aufgaben und Review-Aufgaben abrufen
-- Berechtigungssystem (Eigentümer, Bearbeiter, Reviewer)
+* User registration and login with token authentication
+* Create, update, and delete boards
+* Add members to boards
+* Create tasks with status, priority, due date, assignee, and reviewer
+* Add comments to tasks
+* Retrieve assigned tasks and review tasks
+* Role-based permission system (Owner, Assignee, Reviewer)
 
 ---
 
-## Projektstruktur
+## Project Structure
 
-```
+```text
 KanMind_BackEnd/
-├── core/               # Django Projektkonfiguration (settings, urls)
-├── auth_app/           # Registrierung, Login, Logout
-├── board_app/          # Board-Verwaltung und Mitglieder
-├── task_app/           # Aufgaben und Kommentare
+├── core/               # Django project configuration (settings, urls)
+├── auth_app/           # Registration, login, logout
+├── board_app/          # Board management and members
+├── task_app/           # Tasks and comments
 ├── manage.py
 ├── requirements.txt
 └── db.sqlite3
@@ -61,156 +61,93 @@ KanMind_BackEnd/
 
 ## Installation & Setup
 
-### Voraussetzungen
+### 1. Clone the repository
 
-- Python 3.x installiert
-- `pip` verfügbar
-
-### Schritte
-
-1. **Repository klonen**
-
-   ```bash
-   git clone <repository-url>
-   cd KanMind_BackEnd
-   ```
-
-2. **Virtuelle Umgebung erstellen und aktivieren**
-
-   ```bash
-   python -m venv .venv
-
-   # Windows
-   .venv\Scripts\activate
-
-   # macOS / Linux
-   source .venv/bin/activate
-   ```
-
-3. **Abhängigkeiten installieren**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Datenbank migrieren**
-
-   ```bash
-   python manage.py migrate
-   ```
-
-5. **Entwicklungsserver starten**
-
-   ```bash
-   python manage.py runserver
-   ```
-
-Der Server läuft anschließend unter `http://127.0.0.1:8000/`.
-
----
-
-## API Endpoints
-
-Alle Endpoints beginnen mit dem Präfix `/api/`.
-
-### Authentifizierung
-
-| Methode | Endpoint | Beschreibung | Auth erforderlich |
-|---|---|---|---|
-| `POST` | `/api/registration/` | Neuen Benutzer registrieren | Nein |
-| `POST` | `/api/login/` | Einloggen, Token erhalten | Nein |
-| `POST` | `/api/logout/` | Ausloggen, Token löschen | Ja |
-
-### Boards
-
-| Methode | Endpoint | Beschreibung |
-|---|---|---|
-| `GET` | `/api/boards/` | Alle eigenen Boards abrufen |
-| `POST` | `/api/boards/` | Neues Board erstellen |
-| `GET` | `/api/boards/<id>/` | Board-Details abrufen |
-| `PATCH` | `/api/boards/<id>/` | Board bearbeiten (nur Eigentümer) |
-| `DELETE` | `/api/boards/<id>/` | Board löschen (nur Eigentümer) |
-| `GET` | `/api/email-check/?email=<email>` | Benutzer per E-Mail suchen |
-
-### Tasks
-
-| Methode | Endpoint | Beschreibung |
-|---|---|---|
-| `GET` | `/api/tasks/` | Alle Tasks abrufen |
-| `POST` | `/api/tasks/` | Neuen Task erstellen |
-| `GET` | `/api/tasks/<id>/` | Task-Details abrufen |
-| `PATCH` | `/api/tasks/<id>/` | Task bearbeiten |
-| `DELETE` | `/api/tasks/<id>/` | Task löschen |
-| `GET` | `/api/tasks/assigned-to-me/` | Mir zugewiesene Tasks |
-| `GET` | `/api/tasks/reviewing/` | Tasks, bei denen ich Reviewer bin |
-
-### Kommentare
-
-| Methode | Endpoint | Beschreibung |
-|---|---|---|
-| `GET` | `/api/tasks/<id>/comments/` | Kommentare eines Tasks abrufen |
-| `POST` | `/api/tasks/<id>/comments/` | Kommentar erstellen |
-| `DELETE` | `/api/tasks/<task_id>/comments/<comment_id>/` | Kommentar löschen |
-
----
-
-## Authentifizierung
-
-Die API verwendet **Token-Authentifizierung** (DRF AuthToken).
-
-Nach erfolgreichem Login wird ein Token zurückgegeben:
-
-```json
-{
-  "token": "abc123...",
-  "fullname": "Max Mustermann",
-  "email": "max@example.com",
-  "user_id": 1
-}
+```bash
+git clone https://github.com/croser93/KanMind_BackEnd.git
 ```
 
-Alle geschützten Endpoints erfordern den Token im Header:
+### 2. Navigate to the project directory
 
+```bash
+cd KanMind_BackEnd
 ```
-Authorization: Token abc123...
+
+### 3. Create a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+### 4. Activate the virtual environment
+
+**Linux / macOS**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+### 5. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 6. Create migration files
+
+```bash
+python manage.py makemigrations
+```
+
+### 7. Apply migrations
+
+```bash
+python manage.py migrate
+```
+
+### 8. Start the development server
+
+```bash
+python manage.py runserver
+```
+
+The server will then be available at:
+
+```text
+http://127.0.0.1:8000/
 ```
 
 ---
 
-## Datenmodell
+## Demo Users
 
-### Board
+Create demo users for testing the application.
 
-| Feld | Typ | Beschreibung |
-|---|---|---|
-| `title` | CharField | Name des Boards |
-| `owner_id` | ForeignKey(User) | Eigentümer des Boards |
-| `members` | ManyToManyField(User) | Mitglieder des Boards |
+Start the Django shell:
 
-### Task
+```bash
+python manage.py shell
+```
 
-| Feld | Typ | Beschreibung |
-|---|---|---|
-| `board` | ForeignKey(Board) | Zugehöriges Board |
-| `title` | CharField | Titel der Aufgabe |
-| `description` | TextField | Beschreibung |
-| `status` | CharField | `to-do`, `in-progress`, `review`, `done` |
-| `priority` | CharField | `low`, `medium`, `high` |
-| `assignee_id` | ForeignKey(User) | Bearbeiter (optional) |
-| `reviewer_id` | ForeignKey(User) | Reviewer (optional) |
-| `due_date` | DateField | Fälligkeitsdatum |
+Then paste the following code:
 
-### Comment
+```python
+from django.contrib.auth.models import User
 
-| Feld | Typ | Beschreibung |
-|---|---|---|
-| `task` | ForeignKey(Task) | Zugehöriger Task |
-| `author` | ForeignKey(User) | Autor des Kommentars |
-| `content` | CharField | Kommentarinhalt (max. 500 Zeichen) |
-| `created_at` | DateTimeField | Erstellungsdatum (automatisch) |
+customer = User.objects.create_user(username='andrey',password='asdasd',email='andrey@test.com')
+business = User.objects.create_user(username='kevin',password='asdasd24',email='kevin@test.com')
+```
 
 ---
 
-## Hinweis
+## Author
 
-Dieses Backend ist für den **lokalen Entwicklungsbetrieb** ausgelegt. Für einen Produktiveinsatz wären weitere Schritte notwendig (z. B. Umgebungsvariablen für den Secret Key, Datenbankwechsel, DEBUG deaktivieren).
+**Maik G.**
+
+Frontend Developer currently expanding into Full-Stack Development. This project was created as part of my training at Developer Akademie.
